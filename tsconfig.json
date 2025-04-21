@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2023",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "noFallthroughCasesInSwitch": false,
+    "esModuleInterop": true, // Cần thiết cho việc sử dụng import/export giữa CommonJS và ESModule
+    "moduleResolution": "node", // Giúp nhận diện các module và thư viện dễ dàng hơn
+    "resolveJsonModule": true, // Hỗ trợ import các file .json
+    "isolatedModules": true, // Đảm bảo mỗi tệp TS được biên dịch độc lập
+    "skipDefaultLibCheck": true // Tăng tốc độ biên dịch khi không cần phải kiểm tra thư viện mặc định
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

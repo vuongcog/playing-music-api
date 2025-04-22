@@ -16,9 +16,15 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './auth/auth.module';
 import { ElasticsearchService } from './elasticsearch/elasticsearch.service';
 import { MyElasticsearchModule } from './elasticsearch/myelasticsearch.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'src', 'assets'), // Đường dẫn thư mục gốc chứa assets
+      serveRoot: '/src/assets', // Đường dẫn URL mà bạn sẽ truy cập
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',

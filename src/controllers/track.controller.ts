@@ -15,12 +15,18 @@ import {
   Headers,
   UseInterceptors,
   UploadedFile,
+  UploadedFiles,
+  BadRequestException,
 } from '@nestjs/common';
 
 import * as fs from 'fs';
 import * as path from 'path';
 import { pathToFileURL } from 'node:url';
-import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+  FilesInterceptor,
+} from '@nestjs/platform-express';
 import { diskStorage, Multer } from 'multer';
 import { extname } from 'node:path';
 @Controller('track')
@@ -102,23 +108,49 @@ export class TrackController {
 
   @Post('upload')
   @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
-        destination: './src/assets/audio',
-        filename: (req, file, callback) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          const ext = extname(file.originalname);
-          const filename = `music-${uniqueSuffix}${ext}`;
-          callback(null, filename);
-        },
-      }),
-    }),
+    FileFieldsInterceptor(
+      [
+        { name: 'audio', maxCount: 1 },
+        { name: 'image', maxCount: 1 },
+      ],
+      {
+        storage: diskStorage({
+          destination: (req, file, cb) => {
+            const dest =
+              file.fieldname === 'image'
+                ? './src/assets/images'
+                : './src/assets/audio';
+            cb(null, dest);
+          },
+          filename: (req, file, cb) => {
+            const uniqueSuffix =
+              Date.now() + '-' + Math.round(Math.random() * 1e9);
+            const ext = extname(file.originalname);
+            const prefix = file.fieldname === 'image' ? 'image' : 'music';
+            cb(null, `${prefix}-${uniqueSuffix}${ext}`);
+          },
+        }),
+      },
+    ),
   )
-  upload(
+  async upload(
     @Body() createTrackDto: CreateTrackDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles()
+    files: { audio?: Express.Multer.File[]; image?: Express.Multer.File[] },
   ) {
-    return this.trackService.create(createTrackDto, file);
+    // Kiểm tra file audio
+    if (!files.audio || files.audio.length === 0) {
+      throw new BadRequestException('Thiếu file nhạc');
+    }
+
+    // Kiểm tra file ảnh (tùy chọn bạn có thể bắt buộc hoặc không)
+    if (!files.image || files.image.length === 0) {
+      throw new BadRequestException('Thiếu file ảnh');
+    }
+
+    const audioFile = files.audio[0];
+    const imageFile = files.image[0];
+
+    return this.trackService.create(createTrackDto, audioFile, imageFile);
   }
 }

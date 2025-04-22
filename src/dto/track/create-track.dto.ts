@@ -30,4 +30,7 @@ export class CreateTrackDto {
 
   @IsOptional()
   fileUrl: string;
+
+  @IsOptional()
+  imageUrl: string;
 }

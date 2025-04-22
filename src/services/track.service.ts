@@ -16,17 +16,20 @@ export class TrackService {
     @InjectRepository(Track) private trackRepository: Repository<Track>,
   ) {}
 
-  async create(dto: CreateTrackDto, file: Express.Multer.File): Promise<Track> {
+  async create(
+    dto: CreateTrackDto,
+    audioFile: Express.Multer.File,
+    imageFile?: Express.Multer.File,
+  ): Promise<Track> {
     const filePath = join(
       __dirname,
       '../..',
       'src/assets/audio',
-      file.filename,
+      audioFile.filename,
     );
 
     try {
       const metadata = await mm.parseFile(filePath);
-
       const rawDuration = metadata.format.duration;
 
       if (typeof rawDuration !== 'number') {
@@ -38,7 +41,8 @@ export class TrackService {
       const track = this.trackRepository.create({
         ...dto,
         duration,
-        fileUrl: `/uploads/${file.filename}`,
+        fileUrl: audioFile.filename,
+        imageUrl: imageFile?.filename,
       });
 
       return await this.trackRepository.save(track);

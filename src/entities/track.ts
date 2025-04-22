@@ -1,9 +1,11 @@
+import { IsEmpty } from 'class-validator';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  IsNull,
 } from 'typeorm';
 
 @Entity('tracks')
@@ -28,6 +30,9 @@ export class Track {
 
   @Column({ nullable: true })
   fileUrl: string;
+
+  @Column()
+  imageUrl: string;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

@@ -17,6 +17,8 @@ import {
   UploadedFile,
   UploadedFiles,
   BadRequestException,
+  Put,
+  Query,
 } from '@nestjs/common';
 
 import * as fs from 'fs';
@@ -33,26 +35,18 @@ import { extname } from 'node:path';
 export class TrackController {
   constructor(private readonly trackService: TrackService) {}
 
-  // @Post()
-  // create(@Body() dto: CreateTrackDto) {
-  //   console.log('Dữ liệu trả về là ');
-  //   console.log(dto);
-  //   return this.trackService.create(dto);
-  // }
+  @Get()
+  findAll(
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query('search') search = '',
+  ) {
+    return this.trackService.findAll({ page, limit, search });
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.trackService.findOne(id);
-  }
-
-  @Get()
-  findAall() {
-    return this.trackService.findAll();
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateTrackDto) {
-    return this.trackService.update(id, dto);
   }
 
   @Delete(':id')
@@ -152,5 +146,46 @@ export class TrackController {
     const imageFile = files.image[0];
 
     return this.trackService.create(createTrackDto, audioFile, imageFile);
+  }
+
+  @Put(':id')
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'audio', maxCount: 1 },
+        { name: 'image', maxCount: 1 },
+      ],
+      {
+        storage: diskStorage({
+          destination: (req, file, cb) => {
+            const dest =
+              file.fieldname === 'image'
+                ? './src/assets/images'
+                : './src/assets/audio';
+            cb(null, dest);
+          },
+          filename: (req, file, cb) => {
+            const uniqueSuffix =
+              Date.now() + '-' + Math.round(Math.random() * 1e9);
+            const ext = extname(file.originalname);
+            const prefix = file.fieldname === 'image' ? 'image' : 'music';
+            cb(null, `${prefix}-${uniqueSuffix}${ext}`);
+          },
+        }),
+      },
+    ),
+  )
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateTrackDto,
+    @UploadedFiles()
+    files: { audio?: Express.Multer.File[]; image?: Express.Multer.File[] },
+  ) {
+    if (!id) {
+      throw new BadRequestException('ID không được để trống');
+    }
+    const audioFile = files.audio?.[0];
+    const imageFile = files.image?.[0];
+    return this.trackService.update(id, dto, audioFile, imageFile);
   }
 }

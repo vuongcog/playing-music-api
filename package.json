@@ -24,7 +24,8 @@
     "": "",
     "migration:gen-track": "node --loader ts-node/esm ./node_modules/typeorm/cli.js migration:generate ./src/migrations/CreateTrackTable -d ./src/data-source.ts",
     "migration:run-track": "node --loader ts-node/esm ./node_modules/typeorm/cli.js migration:run -d ./src/data-source.ts",
-    "migration:revert-track": "node --loader ts-node/esm ./node_modules/typeorm/cli.js migration:revert -d ./src/data-source.ts"
+    "migration:revert-track": "node --loader ts-node/esm ./node_modules/typeorm/cli.js migration:revert -d ./src/data-source.ts",
+    "mig:gen": "node --loader ts-node/esm ./node_modules/typeorm/cli.js migration:generate -d ./src/data-source.ts"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^9.0.0",

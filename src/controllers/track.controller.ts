@@ -1,3 +1,4 @@
+import { JwtAuthGuard } from './../auth/guard/jwt-auth.guard';
 import { Response, Express } from 'express';
 import { console } from 'node:inspector/promises';
 import { UpdateTrackDto } from './../dto/track/update-track.dto';
@@ -51,11 +52,6 @@ export class TrackController {
     return this.trackService.findOne(id);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.trackService.remove(id);
-  }
-
   @Get('stream/:filename')
   streamAudio(
     @Param('filename') filename: string,
@@ -102,6 +98,7 @@ export class TrackController {
     stream.pipe(res);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post('upload')
   @UseInterceptors(
     FileFieldsInterceptor(
@@ -134,12 +131,10 @@ export class TrackController {
     @UploadedFiles()
     files: { audio?: Express.Multer.File[]; image?: Express.Multer.File[] },
   ) {
-    // Kiểm tra file audio
     if (!files.audio || files.audio.length === 0) {
       throw new BadRequestException('Thiếu file nhạc');
     }
 
-    // Kiểm tra file ảnh (tùy chọn bạn có thể bắt buộc hoặc không)
     if (!files.image || files.image.length === 0) {
       throw new BadRequestException('Thiếu file ảnh');
     }
@@ -149,7 +144,13 @@ export class TrackController {
 
     return this.trackService.create(createTrackDto, audioFile, imageFile);
   }
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.trackService.remove(id);
+  }
 
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   @UseInterceptors(
     FileFieldsInterceptor(

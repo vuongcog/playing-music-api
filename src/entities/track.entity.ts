@@ -15,7 +15,7 @@ export class Track {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ length: 255 })
+  @Column({ length: 255, unique: true })
   title: string;
 
   @Column({ nullable: true })

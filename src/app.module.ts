@@ -18,12 +18,14 @@ import { ElasticsearchService } from './elasticsearch/elasticsearch.service';
 import { MyElasticsearchModule } from './elasticsearch/myelasticsearch.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { JwtAuthGuard } from './auth/guard/jwt-auth.guard';
+import { JwtStrategy } from './auth/jwt.strategy';
 
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'src', 'assets'), // Đường dẫn thư mục gốc chứa assets
-      serveRoot: '/src/assets', // Đường dẫn URL mà bạn sẽ truy cập
+      rootPath: join(__dirname, '..', 'src', 'assets'),
+      serveRoot: '/src/assets',
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -40,9 +42,11 @@ import { join } from 'path';
     UserModule,
     TrackModule,
     AuthModule,
+
     MyElasticsearchModule,
   ],
-  providers: [AppService],
+  providers: [AppService, JwtStrategy, JwtAuthGuard],
   controllers: [AppController],
+  exports: [JwtAuthGuard],
 })
 export class AppModule {}

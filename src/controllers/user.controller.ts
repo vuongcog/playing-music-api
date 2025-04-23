@@ -1,3 +1,4 @@
+import { JwtAuthGuard } from './../auth/guard/jwt-auth.guard';
 import { console } from 'node:inspector/promises';
 import { ElasticsearchService } from './../elasticsearch/elasticsearch.service';
 import { UpdateUserDTO } from './../dto/user/update-user';
@@ -62,11 +63,13 @@ export class UserController {
     return users;
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('like/:id')
   async getLikedTracks(@Param('id') id: string) {
     return this.userService.getLikedTracks(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post(':id/like/:trackId')
   async addTrackToLiked(
     @Param('id') userId: string,
@@ -75,6 +78,7 @@ export class UserController {
     return await this.userService.addTrackToLiked(userId, trackId);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':id/like/:trackId')
   async removeTrackFromLiked(
     @Param('id') userId: string,

@@ -1,5 +1,11 @@
 import { CreateTrackDto } from './../dto/track/create-track.dto';
-import { Injectable, NotFoundException, UploadedFile } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UploadedFile,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { unlink } from 'node:fs/promises';
 import { console } from 'node:inspector/promises';
@@ -33,7 +39,17 @@ export class TrackService {
       const rawDuration = metadata.format.duration;
 
       if (typeof rawDuration !== 'number') {
-        throw new Error('Không lấy được duration từ file nhạc');
+        throw new BadRequestException('Không lấy được duration từ file nhạc');
+      }
+
+      const existingTrack = await this.trackRepository.findOne({
+        where: { title: dto.title },
+      });
+
+      if (existingTrack) {
+        throw new ConflictException(
+          `Bài hát với tiêu đề ${dto.title} đã tồn tại.`,
+        );
       }
 
       const duration = Math.round(rawDuration);

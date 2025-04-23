@@ -5,7 +5,7 @@ import { unlink } from 'node:fs/promises';
 import { console } from 'node:inspector/promises';
 import { join } from 'node:path';
 import type { UpdateTrackDto } from 'src/dto/track/update-track.dto';
-import { Track } from 'src/entities/track';
+import { Track } from 'src/entities/track.entity';
 import type { Repository } from 'typeorm';
 
 import * as mm from 'music-metadata';

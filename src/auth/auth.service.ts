@@ -1,3 +1,4 @@
+import { User } from './../entities/user.entity';
 import { console } from 'node:inspector/promises';
 import { RegisterDto } from './dto/auth.register.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -33,7 +34,12 @@ export class AuthService {
       registerDto.username,
     );
     if (exitingUser) {
-      throw new ConflictException('Username da ton ton');
+      throw new ConflictException('Username đã tồn tại');
+    }
+
+    const existingEmail = await this.userService.findByEmail(registerDto.email);
+    if (existingEmail) {
+      throw new ConflictException('Email đã được sử dụng');
     }
 
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);

@@ -19,6 +19,7 @@ import {
   BadRequestException,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 
 import * as fs from 'fs';
@@ -31,6 +32,7 @@ import {
 } from '@nestjs/platform-express';
 import { diskStorage, Multer } from 'multer';
 import { extname } from 'node:path';
+
 @Controller('track')
 export class TrackController {
   constructor(private readonly trackService: TrackService) {}

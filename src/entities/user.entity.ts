@@ -5,7 +5,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
+import { Track } from './track.entity';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -36,6 +39,10 @@ export class User {
     default: UserRole.USER,
   })
   role: UserRole;
+
+  @ManyToMany(() => Track)
+  @JoinTable()
+  likedTracks: Track[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

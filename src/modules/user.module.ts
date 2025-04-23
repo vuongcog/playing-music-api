@@ -1,3 +1,4 @@
+import { TrackModule } from './track.module';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
@@ -7,7 +8,11 @@ import { ElasticsearchService } from 'src/elasticsearch/elasticsearch.service';
 import { MyElasticsearchModule } from 'src/elasticsearch/myelasticsearch.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), MyElasticsearchModule],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    MyElasticsearchModule,
+    TrackModule,
+  ],
   providers: [UserService],
   controllers: [UserController],
   exports: [UserService],

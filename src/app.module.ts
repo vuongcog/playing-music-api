@@ -10,7 +10,7 @@ import { User } from './entities/user.entity';
 import { UserModule } from './modules/user.module';
 import { TrackService } from './services/track.service';
 import { TrackController } from './controllers/track.controller';
-import { Track } from './entities/track';
+import { Track } from './entities/track.entity';
 import { AuthService } from './auth/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './auth/auth.module';

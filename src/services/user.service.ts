@@ -1,3 +1,4 @@
+import { Track } from './../entities/track.entity';
 import { ElasticsearchService } from 'src/elasticsearch/elasticsearch.service';
 import { CreateUserDTO } from './../dto/user/create-user';
 import {
@@ -10,12 +11,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import type { UpdateUserDTO } from 'src/dto/user/update-user';
 import { User } from 'src/entities/user.entity';
 import type { Repository } from 'typeorm';
+import { TrackService } from './track.service';
 
 @Injectable()
 export class UserService implements OnModuleInit {
   constructor(
     @InjectRepository(User) private repo: Repository<User>,
     private readonly elasticsearchService: ElasticsearchService,
+    private readonly trackService: TrackService, // Sử dụng TrackService thay vì TrackRepository
   ) {}
 
   async onModuleInit() {}
@@ -72,5 +75,81 @@ export class UserService implements OnModuleInit {
       throw new NotFoundException(`User with username ${username} not found`);
     }
     return user;
+  }
+
+  async getLikedTracks(userId: string): Promise<Track[]> {
+    const user = await this.repo.findOne({
+      where: { id: userId },
+      relations: ['likedTracks'],
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+
+    return user.likedTracks;
+  }
+
+  async addTrackToLiked(
+    userId: string,
+    trackId: string,
+  ): Promise<{ message: string; likedTracks: any[] }> {
+    const user = await this.repo.findOne({
+      where: { id: userId },
+      relations: ['likedTracks'],
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const track = await this.trackService.findOne(trackId);
+
+    if (!track) {
+      throw new Error('Track not found');
+    }
+
+    user.likedTracks.push(track);
+    await this.repo.save(user);
+
+    return {
+      message: 'Track added to liked tracks successfully',
+      likedTracks: user.likedTracks,
+    };
+  }
+
+  async removeTrackFromLiked(
+    userId: string,
+    trackId: string,
+  ): Promise<{ message: string; removedTrack: any }> {
+    const user = await this.repo.findOne({
+      where: { id: userId },
+      relations: ['likedTracks'],
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const trackToRemove = user.likedTracks.find(
+      (track) => track.id === trackId,
+    );
+    if (!trackToRemove) {
+      throw new Error('Track not found in liked tracks');
+    }
+
+    user.likedTracks = user.likedTracks.filter((track) => track.id !== trackId);
+    await this.repo.save(user);
+
+    return {
+      message: 'Track deleted successfully',
+      removedTrack: trackToRemove,
+    };
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.repo.findOne({
+      where: { email },
+    });
   }
 }
